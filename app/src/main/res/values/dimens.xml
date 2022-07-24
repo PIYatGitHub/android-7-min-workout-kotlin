@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="image_height">220dp</dimen>
+    <dimen name="padding_top">10dp</dimen>
+    <dimen name="stroke_w">5dp</dimen>
+    <dimen name="start_btn_size">150dp</dimen>
+    <dimen name="start_btn_margin_top">20dp</dimen>
+    <dimen name="btn_lbl_textsize">22sp</dimen>
+</resources>
