@@ -1,5 +1,6 @@
 package com.piy.sevenminutesworkout
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
@@ -16,6 +17,11 @@ class MainActivity : AppCompatActivity() {
                 this,
                 "Start an exercise", Toast.LENGTH_LONG
             ).show()
+
+            val intent = Intent(this, ExerciseActivity::class.java)
+            startActivity(intent)
+
+
         }
     }
 }
