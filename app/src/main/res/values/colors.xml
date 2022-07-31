@@ -8,4 +8,5 @@
     <color name="secondary">#00fe00</color>
     <color name="secondary_dark">#00b200</color>
     <color name="accent">#ffbfbf</color>
+    <color name="gray">#5A5A5A</color>
 </resources>
