@@ -2,5 +2,6 @@
     <string name="app_name">Seven Minutes Workout</string>
     <string name="start_lbl">START</string>
     <string name="main_screen_img_descr">A workout graffiti!</string>
-    <string name="ger_ready_for">GET READY FOR</string>
+    <string name="get_ready_for">STRETCH AND GET READY</string>
+    <string name="exercise_name">Exercise Name</string>
 </resources>
