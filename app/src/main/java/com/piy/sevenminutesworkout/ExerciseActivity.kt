@@ -1,23 +1,42 @@
 package com.piy.sevenminutesworkout
 
 import android.annotation.SuppressLint
+import android.media.MediaPlayer
 import android.opengl.Visibility
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.speech.tts.TextToSpeech
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import com.bumptech.glide.Glide
 import kotlinx.android.synthetic.main.activity_exercise.*
+import org.w3c.dom.Text
 import java.lang.Error
+import java.util.*
 
-class ExerciseActivity : AppCompatActivity() {
+class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private var restTimer: CountDownTimer? = null
     private var exerciseTimer: CountDownTimer? = null
     private var restProgress = 0
     private var exerciseProgress = 0
     private var exerciseIndex = -1
     val workoutParams = WorkoutGenerator.generateNewWorkout()
+    private var tts: TextToSpeech? = null
+    private var player: MediaPlayer? = null;
+
+    override fun onInit(p0: Int) {
+        if(p0==TextToSpeech.SUCCESS) {
+            val result = tts!!.setLanguage(Locale.US)
+            if(result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                Log.e("TTS", "Bad data on TTS!")
+            } else{
+                Log.e("TTS", "TTS init failed!")
+            }
+        }
+    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,6 +49,7 @@ class ExerciseActivity : AppCompatActivity() {
             onBackPressed()
         }
         setupRestView()
+        tts = TextToSpeech(this, this)
 
     }
 
@@ -43,7 +63,21 @@ class ExerciseActivity : AppCompatActivity() {
             exerciseTimer!!.cancel()
             exerciseProgress = 0
         }
+
+        if(tts!=null) {
+            tts!!.stop()
+            tts!!.shutdown()
+        }
+
+        if(player !=null) {
+            player!!.stop()
+        }
         super.onDestroy()
+    }
+
+    private fun speakOut(text: String){
+        tts!!.speak(text, TextToSpeech.QUEUE_FLUSH, null, "")
+
     }
 
     private fun setRestProgressBar() {
@@ -75,11 +109,28 @@ class ExerciseActivity : AppCompatActivity() {
         ll_exercise_view.visibility = View.GONE
         ll_rest_view.visibility = View.VISIBLE
 
+        try {
+            player = MediaPlayer.create(applicationContext, R.raw.timer)
+            player!!.isLooping = false
+            player!!.start()
+
+        }catch (e:Exception){
+            e.printStackTrace()
+        }
+
         if(restTimer !=null) {
             restTimer!!.cancel()
             restProgress =0
         }
         loadGif(false)
+
+        if(exerciseIndex<=10){ //there are still indices left
+            val exercise = workoutParams["exerciseNames"]?.get(exerciseIndex+1)
+            if(exercise != null) {
+                tv_set_exercise_name.text = exercise
+            }
+        }
+
         setRestProgressBar()
     }
 
@@ -94,7 +145,7 @@ class ExerciseActivity : AppCompatActivity() {
 
             override fun onFinish() {
                 println("Time is up!")
-                if(exerciseIndex < 5) {
+                if(exerciseIndex < 12) {
                     Toast.makeText(this@ExerciseActivity, "Great job. Time to take a rest!", Toast.LENGTH_SHORT).show()
                     setupRestView()
                 } else {
@@ -115,12 +166,12 @@ class ExerciseActivity : AppCompatActivity() {
         }
         loadGif(true)
 
-        var exercise = workoutParams["exerciseNames"]?.get(exerciseIndex)
+        var exerciseName = workoutParams["exerciseNames"]?.get(exerciseIndex)
 
-        if(exercise == null) exercise = "Default Text"
-        tv_get_exercise.text = exercise
+        if(exerciseName == null) exerciseName = "Default Text"
+        tv_get_exercise.text = exerciseName
 
-
+        speakOut(exerciseName)
         setExerciseProgressBar()
     }
 
@@ -142,6 +193,4 @@ class ExerciseActivity : AppCompatActivity() {
                 .into(restGif)
         }
     }
-
-
 }
