@@ -73,6 +73,24 @@
             </LinearLayout>
         </FrameLayout>
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="@string/upcoming_exercise"
+            android:textSize="16sp"
+            />
+
+        <TextView
+            android:id="@+id/tv_set_exercise_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="#212121"
+            tools:text="placeholder"
+            />
     </LinearLayout>
 
     <!--    The exercise view-->
