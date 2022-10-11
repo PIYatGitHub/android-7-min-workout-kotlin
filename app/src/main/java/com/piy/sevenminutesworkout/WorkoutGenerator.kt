@@ -33,7 +33,7 @@ class WorkoutGenerator {
             "Burpees"
         )
         private val exercisesGifs = listOf<String>(
-            "https://giphy.com/gifs/jumping-jacks-ckMk3RKUK29lziaspI",
+            "https://media.giphy.com/media/QXg8kI7Mu4slyiO0Md/giphy.gif",
             "https://media.giphy.com/media/1qfKN8Dt0CRdCRxz9q/giphy.gif",
             "https://media.giphy.com/media/ZA68nmuNOXBecacY4Z/giphy.gif",
             "https://media.giphy.com/media/kVTQnTOl7T0djki2D4/giphy.gif",
