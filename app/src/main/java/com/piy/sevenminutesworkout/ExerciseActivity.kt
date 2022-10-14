@@ -10,6 +10,7 @@ import android.speech.tts.TextToSpeech
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import kotlinx.android.synthetic.main.activity_exercise.*
 import org.w3c.dom.Text
@@ -24,7 +25,8 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private var exerciseIndex = -1
     val workoutParams = WorkoutGenerator.generateNewWorkout()
     private var tts: TextToSpeech? = null
-    private var player: MediaPlayer? = null;
+    private var player: MediaPlayer? = null
+        private var exerciseAdapter: ExerciseStatusAdapter? = null
 
     override fun onInit(p0: Int) {
         if(p0==TextToSpeech.SUCCESS) {
@@ -45,12 +47,14 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         setSupportActionBar(toolbar_exercise_activity)
         val actionBar = supportActionBar
         actionBar?.setDisplayHomeAsUpEnabled(true)
+
         toolbar_exercise_activity.setNavigationOnClickListener {
             onBackPressed()
         }
         setupRestView()
-        tts = TextToSpeech(this, this)
 
+        tts = TextToSpeech(this, this)
+        setupExerciseStatusRecyclerView()
     }
 
     override fun onDestroy() {
@@ -192,5 +196,18 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 .load("https://media.giphy.com/media/KHVbpEYoTraB736p3d/giphy.gif")  // Call your GIF here (url, raw, etc.)
                 .into(restGif)
         }
+    }
+
+    private fun setupExerciseStatusRecyclerView(){
+        rv_exercise_status.layoutManager = LinearLayoutManager(this,
+            LinearLayoutManager.HORIZONTAL,
+            false)
+        val items = workoutParams["exerciseNames"]
+        if(items != null){
+            exerciseAdapter = ExerciseStatusAdapter(items, this)
+            rv_exercise_status.adapter = exerciseAdapter
+        }
+
+
     }
 }
