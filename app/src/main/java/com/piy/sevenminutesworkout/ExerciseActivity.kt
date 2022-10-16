@@ -26,14 +26,28 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     val workoutParams = WorkoutGenerator.generateNewWorkout()
     private var tts: TextToSpeech? = null
     private var player: MediaPlayer? = null
-        private var exerciseAdapter: ExerciseStatusAdapter? = null
+    private var exerciseAdapter: ExerciseStatusAdapter? = null
+    private val adapterItems = mutableListOf(
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+    )
 
     override fun onInit(p0: Int) {
-        if(p0==TextToSpeech.SUCCESS) {
+        if (p0 == TextToSpeech.SUCCESS) {
             val result = tts!!.setLanguage(Locale.US)
-            if(result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
                 Log.e("TTS", "Bad data on TTS!")
-            } else{
+            } else {
                 Log.e("TTS", "TTS init failed!")
             }
         }
@@ -58,48 +72,54 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     }
 
     override fun onDestroy() {
-        if(restTimer!= null) {
+        if (restTimer != null) {
             restTimer!!.cancel()
             restProgress = 0
         }
 
-        if(exerciseTimer!= null) {
+        if (exerciseTimer != null) {
             exerciseTimer!!.cancel()
             exerciseProgress = 0
         }
 
-        if(tts!=null) {
+        if (tts != null) {
             tts!!.stop()
             tts!!.shutdown()
         }
 
-        if(player !=null) {
+        if (player != null) {
             player!!.stop()
         }
         super.onDestroy()
     }
 
-    private fun speakOut(text: String){
+    private fun speakOut(text: String) {
         tts!!.speak(text, TextToSpeech.QUEUE_FLUSH, null, "")
-
     }
 
     private fun setRestProgressBar() {
         progress_bar_rest.progress = restProgress
-        restTimer = object : CountDownTimer(10000, 1000){
+        restTimer = object : CountDownTimer(10000, 1000) {
             override fun onTick(p0: Long) {
-                restProgress ++
+                restProgress++
                 progress_bar_rest.progress = 10 - restProgress
                 tv_timer.text = (10 - restProgress).toString()
             }
 
             override fun onFinish() {
                 println("Time is up!")
-                Toast.makeText(this@ExerciseActivity, "Now we start the exercise!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this@ExerciseActivity,
+                    "Now we start the exercise!",
+                    Toast.LENGTH_SHORT
+                ).show()
                 var size: Int = workoutParams["exerciseGifs"]?.size ?: throw Error("bad data!")
 
-                if(exerciseIndex < size - 1 ) {
-                    exerciseIndex ++
+                if (exerciseIndex < size - 1) {
+                    exerciseIndex++
+                    adapterItems[exerciseIndex] = true
+                    println("@onFinish Adapter items are $adapterItems")
+                    exerciseAdapter!!.notifyDataSetChanged()
                 } else {
                     exerciseIndex = 0
                 }
@@ -109,7 +129,7 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         }.start()
     }
 
-    private fun  setupRestView () {
+    private fun setupRestView() {
         ll_exercise_view.visibility = View.GONE
         ll_rest_view.visibility = View.VISIBLE
 
@@ -118,19 +138,19 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             player!!.isLooping = false
             player!!.start()
 
-        }catch (e:Exception){
+        } catch (e: Exception) {
             e.printStackTrace()
         }
 
-        if(restTimer !=null) {
+        if (restTimer != null) {
             restTimer!!.cancel()
-            restProgress =0
+            restProgress = 0
         }
         loadGif(false)
 
-        if(exerciseIndex<=10){ //there are still indices left
-            val exercise = workoutParams["exerciseNames"]?.get(exerciseIndex+1)
-            if(exercise != null) {
+        if (exerciseIndex <= 10) { //there are still indices left
+            val exercise = workoutParams["exerciseNames"]?.get(exerciseIndex + 1)
+            if (exercise != null) {
                 tv_set_exercise_name.text = exercise
             }
         }
@@ -140,39 +160,44 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     private fun setExerciseProgressBar() {
         progress_bar_exercise.progress = exerciseProgress
-        exerciseTimer = object : CountDownTimer(30000, 1000){
+        exerciseTimer = object : CountDownTimer(30000, 1000) {
             override fun onTick(p0: Long) {
-                exerciseProgress ++
+                exerciseProgress++
                 progress_bar_exercise.progress = 30 - exerciseProgress
                 tv_timer_exercise.text = (30 - exerciseProgress).toString()
             }
 
             override fun onFinish() {
                 println("Time is up!")
-                if(exerciseIndex < 12) {
-                    Toast.makeText(this@ExerciseActivity, "Great job. Time to take a rest!", Toast.LENGTH_SHORT).show()
+                if (exerciseIndex < 12) {
+                    Toast.makeText(
+                        this@ExerciseActivity,
+                        "Great job. Time to take a rest!",
+                        Toast.LENGTH_SHORT
+                    ).show()
                     setupRestView()
                 } else {
                     Toast.makeText(this@ExerciseActivity, "YOU MADE IT!", Toast.LENGTH_SHORT).show()
+
                 }
 
             }
         }.start()
     }
 
-    private fun  setupExerciseView () {
+    private fun setupExerciseView() {
         ll_exercise_view.visibility = View.VISIBLE
         ll_rest_view.visibility = View.GONE
 
-        if(exerciseTimer !=null) {
+        if (exerciseTimer != null) {
             exerciseTimer!!.cancel()
-            exerciseProgress =0
+            exerciseProgress = 0
         }
         loadGif(true)
 
         var exerciseName = workoutParams["exerciseNames"]?.get(exerciseIndex)
 
-        if(exerciseName == null) exerciseName = "Default Text"
+        if (exerciseName == null) exerciseName = "Default Text"
         tv_get_exercise.text = exerciseName
 
         speakOut(exerciseName)
@@ -180,10 +205,10 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     }
 
     // Check if the GIF is animated or not:
-    private fun loadGif(isAnimationActive: Boolean){
-        if (isAnimationActive){
+    private fun loadGif(isAnimationActive: Boolean) {
+        if (isAnimationActive) {
             var gif = workoutParams["exerciseGifs"]?.get(exerciseIndex)
-            if(gif == null){
+            if (gif == null) {
                 gif = "https://media.giphy.com/media/3ornjHnlfyrQclXGZq/giphy.gif"
             }
             Glide.with(this)
@@ -198,16 +223,15 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         }
     }
 
-    private fun setupExerciseStatusRecyclerView(){
-        rv_exercise_status.layoutManager = LinearLayoutManager(this,
+    private fun setupExerciseStatusRecyclerView() {
+        rv_exercise_status.layoutManager = LinearLayoutManager(
+            this,
             LinearLayoutManager.HORIZONTAL,
-            false)
-        val items = workoutParams["exerciseNames"]
-        if(items != null){
-            exerciseAdapter = ExerciseStatusAdapter(items, this)
+            false
+        )
+
+        println("@ setupExerciseStatusRecyclerView Adapter items are $adapterItems")
+        exerciseAdapter = ExerciseStatusAdapter(adapterItems, this)
             rv_exercise_status.adapter = exerciseAdapter
-        }
-
-
     }
 }
