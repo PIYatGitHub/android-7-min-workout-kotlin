@@ -1,6 +1,7 @@
 package com.piy.sevenminutesworkout
 
 import android.annotation.SuppressLint
+import android.app.Dialog
 import android.content.Intent
 import android.media.MediaPlayer
 import android.opengl.Visibility
@@ -14,6 +15,7 @@ import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import kotlinx.android.synthetic.main.activity_exercise.*
+import kotlinx.android.synthetic.main.dialog_custom_back_confirmation.*
 import org.w3c.dom.Text
 import java.lang.Error
 import java.util.*
@@ -64,7 +66,7 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         actionBar?.setDisplayHomeAsUpEnabled(true)
 
         toolbar_exercise_activity.setNavigationOnClickListener {
-            onBackPressed()
+            customDialogOnBackPress()
         }
         setupRestView()
 
@@ -236,5 +238,21 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         println("@ setupExerciseStatusRecyclerView Adapter items are $adapterItems")
         exerciseAdapter = ExerciseStatusAdapter(adapterItems, this)
             rv_exercise_status.adapter = exerciseAdapter
+    }
+
+    private fun customDialogOnBackPress (){
+        val customBackDialog = Dialog(this)
+
+        customBackDialog.setContentView(R.layout.dialog_custom_back_confirmation)
+        customBackDialog.buttonYes.setOnClickListener{
+            finish()
+            customBackDialog.dismiss()
+        }
+
+        customBackDialog.buttonNo.setOnClickListener{
+            customBackDialog.dismiss()
+        }
+
+        customBackDialog.show()
     }
 }
