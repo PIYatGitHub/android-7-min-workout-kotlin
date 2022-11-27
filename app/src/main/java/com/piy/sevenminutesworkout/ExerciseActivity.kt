@@ -1,6 +1,7 @@
 package com.piy.sevenminutesworkout
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.media.MediaPlayer
 import android.opengl.Visibility
 import androidx.appcompat.app.AppCompatActivity
@@ -178,7 +179,9 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                     setupRestView()
                 } else {
                     Toast.makeText(this@ExerciseActivity, "YOU MADE IT!", Toast.LENGTH_SHORT).show()
-
+                    finish() //finish the exercise activity
+                    val intent = Intent(this@ExerciseActivity, FinishActivity::class.java)
+                    startActivity(intent)
                 }
 
             }
