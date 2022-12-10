@@ -9,6 +9,10 @@ import java.math.BigDecimal
 import java.math.RoundingMode
 
 class BMIActivity : AppCompatActivity() {
+    private val METRIC_UNITS_VIEW = "METRIC_UNIT_VIEW"
+    val IMPERIAL_UNITS_VIEW = "IMPERIAL_UNIT_VIEW"
+    var currentlyVisibleView = METRIC_UNITS_VIEW
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_bmiactivity)
@@ -24,16 +28,41 @@ class BMIActivity : AppCompatActivity() {
         }
 
         btnCalculateResult.setOnClickListener {
-            if (valudateMetricUnits()) {
+            val isMetric = currentlyVisibleView == METRIC_UNITS_VIEW
+            val toast =
+                Toast.makeText(this@BMIActivity, "Please enter a valid value.", Toast.LENGTH_LONG)
+            var bmi = 0.0f;
+
+            if (isMetric && valudateMetricUnits()) {
                 val height: Float = editTextMetricUnitHeight.text.toString().toFloat() / 100
                 val weight: Float = editTextMetricUnitWeight.text.toString().toFloat()
 
-                val bmi = weight / (height * height)
+                bmi = weight / (height * height)
+            }
 
+            if (!isMetric && validateImperialUnits()) {
+                val heightInFeet: String = editTextImperialUnitHeightFeet.text.toString()
+                val heightInInch: String = editTextImperialUnitHeightInches.text.toString()
+                val weightInPounds: Float = editTextImperialUnitWeight.text.toString().toFloat()
+
+                val heightValue = heightInInch.toFloat() + heightInFeet.toFloat() * 12
+
+                bmi = 703 * (weightInPounds/(heightValue*heightValue))
+            }
+
+            if (bmi!= 0.0f){
                 displayBMIResult(bmi)
             } else {
-                Toast.makeText(this@BMIActivity, "Please enter a valid value.", Toast.LENGTH_LONG)
-                    .show()
+                toast.show()
+            }
+        }
+
+        makeVisibleMetricUnitsView()
+        rgUnits.setOnCheckedChangeListener { group, checkedId ->
+            if (checkedId == R.id.rbMetricUnits) {
+                makeVisibleMetricUnitsView()
+            } else {
+                makeVisiblImperialUnitsView()
             }
         }
     }
@@ -79,10 +108,7 @@ class BMIActivity : AppCompatActivity() {
             bmiDescr = "This is not a joke soldier! Get it together or you die..."
         }
 
-        tvYourBMI.visibility = View.VISIBLE
-        tvBMIValue.visibility = View.VISIBLE
-        tvBMIType.visibility = View.VISIBLE
-        tvBMIDescription.visibility = View.VISIBLE
+        displayBMIResult.visibility = View.VISIBLE
 
         val bmival = BigDecimal(bmi.toDouble()).setScale(2, RoundingMode.HALF_EVEN).toString()
         tvBMIValue.text = bmival
@@ -97,5 +123,40 @@ class BMIActivity : AppCompatActivity() {
         if (editTextMetricUnitHeight.text.toString().isEmpty()) isValid = false
 
         return isValid
+    }
+
+    private fun validateImperialUnits(): Boolean {
+        var isValid = true
+
+        if (editTextImperialUnitHeightFeet.text.toString().isEmpty()) isValid = false
+        if (editTextImperialUnitHeightInches.text.toString().isEmpty()) isValid = false
+        if (editTextImperialUnitWeight.text.toString().isEmpty()) isValid = false
+
+        return isValid
+    }
+
+    private fun makeVisibleMetricUnitsView() {
+        currentlyVisibleView = METRIC_UNITS_VIEW
+        textInputLayoutUnitWeight.visibility = View.VISIBLE
+        textInputLayoutUnitHeight.visibility = View.VISIBLE
+        textInputLayoutImperialWeight.visibility = View.GONE
+        llImperialUnitsHeight.visibility = View.GONE
+        displayBMIResult.visibility = View.INVISIBLE
+
+        editTextMetricUnitWeight.text!!.clear()
+        editTextMetricUnitHeight.text!!.clear()
+    }
+
+    private fun makeVisiblImperialUnitsView() {
+        currentlyVisibleView = IMPERIAL_UNITS_VIEW
+        textInputLayoutUnitWeight.visibility = View.GONE
+        textInputLayoutUnitHeight.visibility = View.GONE
+        textInputLayoutImperialWeight.visibility = View.VISIBLE
+        llImperialUnitsHeight.visibility = View.VISIBLE
+        displayBMIResult.visibility = View.INVISIBLE
+
+        editTextImperialUnitWeight.text!!.clear()
+        editTextImperialUnitHeightFeet.text!!.clear()
+        editTextImperialUnitHeightInches.text!!.clear()
     }
 }
